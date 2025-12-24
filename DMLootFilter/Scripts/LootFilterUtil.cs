@@ -1,6 +1,6 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace DMLootFilter
@@ -8,6 +8,12 @@ namespace DMLootFilter
     internal static class LootFilterUtil
     {
         public const string FilterBoxName = "filter";
+
+        // Cache "how to get items" per lootable type (silent + fast)
+        private static readonly Dictionary<Type, Func<object, ItemStack[]>> _itemsGetterByType =
+            new Dictionary<Type, Func<object, ItemStack[]>>();
+
+        private static readonly object _itemsGetterLock = new object();
 
         public static string GetContainerCustomNameOrEmpty(TileEntity te)
         {
@@ -98,66 +104,109 @@ namespace DMLootFilter
         {
             if (lootable == null) return null;
 
+            // Fast path
             if (lootable is TileEntityLootContainer lc)
                 return lc.items;
 
-            Type t = lootable.GetType();
+            var t = lootable.GetType();
+            Func<object, ItemStack[]> getter;
+
+            lock (_itemsGetterLock)
+            {
+                if (!_itemsGetterByType.TryGetValue(t, out getter))
+                {
+                    getter = BuildItemsGetter(t);
+                    // cache even if null (so we don't re-probe every time)
+                    _itemsGetterByType[t] = getter;
+                }
+            }
+
+            if (getter == null)
+                return null;
 
             try
             {
-                var mi = AccessTools.Method(t, "GetItems");
+                return getter(lootable);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static Func<object, ItemStack[]> BuildItemsGetter(Type t)
+        {
+            // NOTE: We intentionally do NOT use Harmony AccessTools here,
+            // because AccessTools logs warnings on misses.
+            const BindingFlags BF = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+            // 1) Method: GetItems() : ItemStack[]
+            try
+            {
+                var mi = t.GetMethod("GetItems", BF, null, Type.EmptyTypes, null);
                 if (mi != null)
                 {
-                    var val = mi.Invoke(lootable, null);
-                    var arr = val as ItemStack[];
-                    if (arr != null) return arr;
+                    return (obj) => ConvertToItemStackArray(mi.Invoke(obj, null));
                 }
             }
             catch { }
 
+            // 2) Property: Items / items
             try
             {
-                var pi = AccessTools.Property(t, "Items");
+                var pi = t.GetProperty("Items", BF) ?? t.GetProperty("items", BF);
                 if (pi != null)
                 {
-                    var val = pi.GetValue(lootable, null);
-                    var arr = val as ItemStack[];
-                    if (arr != null) return arr;
+                    return (obj) => ConvertToItemStackArray(pi.GetValue(obj, null));
                 }
             }
             catch { }
 
-            try
+            // 3) Field: common names
+            string[] fieldNames =
             {
-                var pi = AccessTools.Property(t, "items");
-                if (pi != null)
-                {
-                    var val = pi.GetValue(lootable, null);
-                    var arr = val as ItemStack[];
-                    if (arr != null) return arr;
-                }
-            }
-            catch { }
+                "itemsArr",
+                "items",
+                "Items",
+                "_items",
+                "m_Items",
+                "itemStacks",
+                "_itemStacks",
+                "m_itemStacks"
+            };
 
-            try
+            foreach (var fn in fieldNames)
             {
-                var fi = AccessTools.Field(t, "itemsArr")
-                         ?? AccessTools.Field(t, "items")
-                         ?? AccessTools.Field(t, "Items")
-                         ?? AccessTools.Field(t, "_items")
-                         ?? AccessTools.Field(t, "m_Items")
-                         ?? AccessTools.Field(t, "itemStacks")
-                         ?? AccessTools.Field(t, "_itemStacks")
-                         ?? AccessTools.Field(t, "m_itemStacks");
-
-                if (fi != null)
+                try
                 {
-                    var val = fi.GetValue(lootable);
-                    var arr = val as ItemStack[];
-                    if (arr != null) return arr;
+                    var fi = t.GetField(fn, BF);
+                    if (fi != null)
+                    {
+                        return (obj) => ConvertToItemStackArray(fi.GetValue(obj));
+                    }
                 }
+                catch { }
             }
-            catch { }
+
+            // Nothing found for this type
+            return null;
+        }
+
+        private static ItemStack[] ConvertToItemStackArray(object val)
+        {
+            if (val == null) return null;
+
+            if (val is ItemStack[] arr)
+                return arr;
+
+            // Some containers might store as List<ItemStack> or IList<ItemStack>
+            if (val is IList<ItemStack> list)
+            {
+                var a = new ItemStack[list.Count];
+                for (int i = 0; i < list.Count; i++)
+                    a[i] = list[i];
+                return a;
+            }
 
             return null;
         }

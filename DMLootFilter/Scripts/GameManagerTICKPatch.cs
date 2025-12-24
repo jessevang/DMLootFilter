@@ -57,6 +57,11 @@ namespace DMLootFilter
                 if (player == null || !player.IsSpawned() || player.IsDead())
                     continue;
 
+                // If player is currently editing the FILTER chest, pause filtering for them.
+                // (Prevents immediately deleting items they pull out of the filter box.)
+                if (DMLootFilter.Scripts.LootFilterOpenState.IsSuspended(cInfo.entityId))
+                    continue;
+
                 string playerId = PlayerIdUtil.GetPersistentIdOrNull(cInfo);
                 if (string.IsNullOrWhiteSpace(playerId))
                     continue;

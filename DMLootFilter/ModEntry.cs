@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;           // <-- needed for Path
+using System.IO;           // Path
 using HarmonyLib;
 using UnityEngine;
 
@@ -10,20 +10,25 @@ namespace DMLootFilter
     {
         private const string HarmonyId = "DMLootFilter.Mod";
 
+        // Ensure we only generate once per server start
+        private static bool _generated = false;
+
         public void InitMod(Mod modInstance)
         {
-            ModEvents.PlayerSpawnedInWorld.RegisterHandler(OnPlayerSpawnedInWorld);
-
             try
             {
+                // Register events first
+                ModEvents.PlayerSpawnedInWorld.RegisterHandler(OnPlayerSpawnedInWorld);
+  
+
+                // Load persisted player data
                 PlayerDataStore.PlayerStorage.Load();
 
+                // Apply Harmony patches
                 var harmony = new Harmony(HarmonyId);
                 harmony.PatchAll();
 
-                Debug.Log("[DMLootFilter] InitMod complete: player data loaded, Harmony patches applied.");
-
-
+                Debug.Log("[DMLootFilter] InitMod complete: player data loaded, Harmony patches applied, events registered.");
             }
             catch (Exception ex)
             {
@@ -59,5 +64,7 @@ namespace DMLootFilter
                 Debug.LogError("[DMLootFilter] PlayerSpawned handler error: " + ex);
             }
         }
+
+       
     }
 }

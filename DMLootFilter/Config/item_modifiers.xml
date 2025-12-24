@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configs>
+  <setattribute xpath="/item_modifiers/item_modifier[@name='modGeneralMaster']" name="modifier_tags">modGeneralMaster</setattribute>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunBarrelExtender']/@modifier_tags">,modGunBarrelExtender</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunMuzzleBrake']/@modifier_tags">,modGunMuzzleBrake</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunSoundSuppressorSilencer']/@modifier_tags">,modGunSoundSuppressorSilencer</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunLaserSight']/@modifier_tags">,modGunLaserSight</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunFlashlight']/@modifier_tags">,modGunFlashlight</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunScopeSmall']/@modifier_tags">,modGunScopeSmall</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunScopeMedium']/@modifier_tags">,modGunScopeMedium</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunScopeLarge']/@modifier_tags">,modGunScopeLarge</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunReflexSight']/@modifier_tags">,modGunReflexSight</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunTriggerGroupSemi']/@modifier_tags">,modGunTriggerGroupSemi</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunTriggerGroupBurst3']/@modifier_tags">,modGunTriggerGroupBurst3</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunTriggerGroupAutomatic']/@modifier_tags">,modGunTriggerGroupAutomatic</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunBipod']/@modifier_tags">,modGunBipod</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunForegrip']/@modifier_tags">,modGunForegrip</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunRetractingStock']/@modifier_tags">,modGunRetractingStock</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modShotgunSawedOffBarrel']/@modifier_tags">,modShotgunSawedOffBarrel</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunDuckbill']/@modifier_tags">,modGunDuckbill</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunChoke']/@modifier_tags">,modGunChoke</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunMagazineExtender']/@modifier_tags">,modGunMagazineExtender</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunDrumMagazineExtender']/@modifier_tags">,modGunDrumMagazineExtender</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunShotgunTubeExtenderMagazine']/@modifier_tags">,modGunShotgunTubeExtenderMagazine</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunCrippleEm']/@modifier_tags">,modGunCrippleEm</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunBowPolymerString']/@modifier_tags">,modGunBowPolymerString</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunBowArrowRest']/@modifier_tags">,modGunBowArrowRest</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunMeleeTheHunter']/@modifier_tags">,modGunMeleeTheHunter</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modGunMeleeRadRemover']/@modifier_tags">,modGunMeleeRadRemover</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeTemperedBlade']/@modifier_tags">,modMeleeTemperedBlade</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeSerratedBlade']/@modifier_tags">,modMeleeSerratedBlade</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeWeightedHead']/@modifier_tags">,modMeleeWeightedHead</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeStructuralBrace']/@modifier_tags">,modMeleeStructuralBrace</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeErgonomicGrip']/@modifier_tags">,modMeleeErgonomicGrip</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeFortifyingGrip']/@modifier_tags">,modMeleeFortifyingGrip</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeClubBarbedWire']/@modifier_tags">,modMeleeClubBarbedWire</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeClubMetalSpikes']/@modifier_tags">,modMeleeClubMetalSpikes</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeClubMetalChain']/@modifier_tags">,modMeleeClubMetalChain</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeClubBurningShaft']/@modifier_tags">,modMeleeClubBurningShaft</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeFiremansAxeMod']/@modifier_tags">,modMeleeFiremansAxeMod</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeGraveDigger']/@modifier_tags">,modMeleeGraveDigger</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeBunkerBuster']/@modifier_tags">,modMeleeBunkerBuster</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeIronBreaker']/@modifier_tags">,modMeleeIronBreaker</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeWoodSplitter']/@modifier_tags">,modMeleeWoodSplitter</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeDiamondTip']/@modifier_tags">,modMeleeDiamondTip</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modMeleeStunBatonRepulsor']/@modifier_tags">,modMeleeStunBatonRepulsor</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modFuelTankSmall']/@modifier_tags">,modFuelTankSmall</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modFuelTankLarge']/@modifier_tags">,modFuelTankLarge</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorInsulatedLinerT1']/@modifier_tags">,modArmorInsulatedLinerT1</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorInsulatedLinerT2']/@modifier_tags">,modArmorInsulatedLinerT2</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorInsulatedLinerT3']/@modifier_tags">,modArmorInsulatedLinerT3</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorBandolier']/@modifier_tags">,modArmorBandolier</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modRadiationReady']/@modifier_tags">,modRadiationReady</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorImprovedFittings']/@modifier_tags">,modArmorImprovedFittings</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorCustomizedFittings']/@modifier_tags">,modArmorCustomizedFittings</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorPlatingBasic']/@modifier_tags">,modArmorPlatingBasic</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorPlatingReinforced']/@modifier_tags">,modArmorPlatingReinforced</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorStoragePocket']/@modifier_tags">,modArmorStoragePocket</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorDoubleStoragePocket']/@modifier_tags">,modArmorDoubleStoragePocket</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorTripleStoragePocket']/@modifier_tags">,modArmorTripleStoragePocket</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorQuadStoragePocket']/@modifier_tags">,modArmorQuadStoragePocket</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorMuffledConnectors']/@modifier_tags">,modArmorMuffledConnectors</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorAdvancedMuffledConnectors']/@modifier_tags">,modArmorAdvancedMuffledConnectors</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorImpactBracing']/@modifier_tags">,modArmorImpactBracing</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorStealthBoots']/@modifier_tags">,modArmorStealthBoots</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorWaterPurifier']/@modifier_tags">,modArmorWaterPurifier</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorCigar']/@modifier_tags">,modArmorCigar</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorPerception']/@modifier_tags">,modArmorPerception</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorStrength']/@modifier_tags">,modArmorStrength</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorFortitude']/@modifier_tags">,modArmorFortitude</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorAgility']/@modifier_tags">,modArmorAgility</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorIntellect']/@modifier_tags">,modArmorIntellect</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorTreasureHunter']/@modifier_tags">,modArmorTreasureHunter</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorNightVision']/@modifier_tags">,modArmorNightVision</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modDyeWhite']/@modifier_tags">,modDyeWhite</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modVehicleMega']/@modifier_tags">,modVehicleMega</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modVehicleFuelSaver']/@modifier_tags">,modVehicleFuelSaver</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modVehicleOffRoadHeadlights']/@modifier_tags">,modVehicleOffRoadHeadlights</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modVehicleSuperCharger']/@modifier_tags">,modVehicleSuperCharger</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modVehicleExpandedSeat']/@modifier_tags">,modVehicleExpandedSeat</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modVehicleReserveFuelTank']/@modifier_tags">,modVehicleReserveFuelTank</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modVehiclePlow']/@modifier_tags">,modVehiclePlow</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modVehicleArmor']/@modifier_tags">,modVehicleArmor</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modVehicleStorage']/@modifier_tags">,modVehicleStorage</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modRoboticDroneArmorPlatingMod']/@modifier_tags">,modRoboticDroneArmorPlatingMod</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modRoboticDroneCargoMod']/@modifier_tags">,modRoboticDroneCargoMod</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modRoboticDroneMoraleBoosterMod']/@modifier_tags">,modRoboticDroneMoraleBoosterMod</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modRoboticDroneHeadlampMod']/@modifier_tags">,modRoboticDroneHeadlampMod</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modRoboticDroneMedicMod']/@modifier_tags">,modRoboticDroneMedicMod</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modRoboticDroneWeaponMod']/@modifier_tags">,modRoboticDroneWeaponMod</append>
+  <append xpath="/item_modifiers/item_modifier[@name='modRoboticDroneStunWeaponMod']/@modifier_tags">,modRoboticDroneStunWeaponMod</append>
+  <setattribute xpath="/item_modifiers/item_modifier[@name='questWhiteRiverSupplies']" name="modifier_tags">questWhiteRiverSupplies</setattribute>
+  <setattribute xpath="/item_modifiers/item_modifier[@name='questCassadoreSupplies']" name="modifier_tags">questCassadoreSupplies</setattribute>
+  <setattribute xpath="/item_modifiers/item_modifier[@name='modGunButtkick3000']" name="modifier_tags">modGunButtkick3000</setattribute>
+  <setattribute xpath="/item_modifiers/item_modifier[@name='modGunButtkick4000']" name="modifier_tags">modGunButtkick4000</setattribute>
+  <setattribute xpath="/item_modifiers/item_modifier[@name='modMeleeGunToolDecapitizer']" name="modifier_tags">modMeleeGunToolDecapitizer</setattribute>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorJumpJets']/@modifier_tags">,modArmorJumpJets</append>
+  <setattribute xpath="/item_modifiers/item_modifier[@name='modGunBowAdminArcheryReloadRecovery']" name="modifier_tags">modGunBowAdminArcheryReloadRecovery</setattribute>
+  <append xpath="/item_modifiers/item_modifier[@name='modArmorAdminToughGuyShirt']/@modifier_tags">,modArmorAdminToughGuyShirt</append>
+</configs>

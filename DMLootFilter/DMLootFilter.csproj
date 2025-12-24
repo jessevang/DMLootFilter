@@ -63,6 +63,7 @@
     <Compile Include="Scripts\InventoryUtil.cs" />
     <Compile Include="Scripts\LootFilterCollectionEntityPatch.cs" />
     <Compile Include="Scripts\LootFilterGameEvents.cs" />
+    <Compile Include="Scripts\LootFilterOpenState.cs" />
     <Compile Include="Scripts\LootFilterXPathGenerator.cs" />
     <Compile Include="Scripts\LootFilter_TELockServerContainerPatch.cs" />
     <Compile Include="Scripts\LootFilterUtil.cs" />
@@ -75,6 +76,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Config\items.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Config\item_modifiers.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="ModInfo.xml">
@@ -97,6 +101,7 @@ copy /Y "$(TargetPath)" "%25MODS%25\"
 copy /Y "$(ProjectDir)ModInfo.xml" "%25MODS%25\"
 
 REM Copy XML patches from PROJECT Config folder (mod root Config)
+
 if exist "$(ProjectDir)Config\gameevents.xml" (
   copy /Y "$(ProjectDir)Config\gameevents.xml" "%25MODS%25\Config\"
 ) else (
@@ -107,6 +112,12 @@ if exist "$(ProjectDir)Config\items.xml" (
   copy /Y "$(ProjectDir)Config\items.xml" "%25MODS%25\Config\"
 ) else (
   echo MISSING: "$(ProjectDir)Config\items.xml"
+)
+
+if exist "$(ProjectDir)Config\item_modifiers.xml" (
+  copy /Y "$(ProjectDir)Config\item_modifiers.xml" "%25MODS%25\Config\"
+) else (
+  echo MISSING: "$(ProjectDir)Config\item_modifiers.xml"
 )
 </PostBuildEvent>
   </PropertyGroup>

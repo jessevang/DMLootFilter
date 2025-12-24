@@ -32,10 +32,7 @@ namespace DMLootFilter.Scripts
                 return clrIdx == other.clrIdx && blockPos.Equals(other.blockPos);
             }
 
-            public override bool Equals(object obj)
-            {
-                return obj is ContainerKey k && Equals(k);
-            }
+            public override bool Equals(object obj) => obj is ContainerKey k && Equals(k);
 
             public override int GetHashCode()
             {
@@ -59,8 +56,14 @@ namespace DMLootFilter.Scripts
             }
         }
 
-        private static readonly Dictionary<ContainerKey, int> _openerEntityByContainer =
-            new Dictionary<ContainerKey, int>();
+        private struct OpenInfo
+        {
+            public int openerEntityId;
+            public bool isFilterBox;
+        }
+
+        private static readonly Dictionary<ContainerKey, OpenInfo> _openByContainer =
+            new Dictionary<ContainerKey, OpenInfo>();
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(GameManager.TELockServer))]
@@ -73,9 +76,36 @@ namespace DMLootFilter.Scripts
                     return;
 
                 var key = ContainerKey.From(_clrIdx, _blockPos, _lootEntityId);
-                _openerEntityByContainer[key] = _entityIdThatOpenedIt;
 
-                Debug.Log("[DMLootFilter] TELockServer: OPEN key=(" + key + ") openerEntityId=" + _entityIdThatOpenedIt + " ui='" + _customUi + "'");
+                bool isFilter = false;
+
+                // Attempt to resolve TE name *on open* so we can suspend filtering while UI is open
+                var world = GameManager.Instance?.World;
+                if (world != null)
+                {
+                    TileEntity te = (_lootEntityId != -1) ? world.GetTileEntity(_lootEntityId) : world.GetTileEntity(_blockPos);
+                    if (te != null)
+                    {
+                        string name = LootFilterUtil.GetContainerCustomNameOrEmpty(te);
+                        if (!string.IsNullOrWhiteSpace(name) &&
+                            name.Equals(LootFilterUtil.FilterBoxName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            isFilter = true;
+                        }
+                    }
+                }
+
+                _openByContainer[key] = new OpenInfo { openerEntityId = _entityIdThatOpenedIt, isFilterBox = isFilter };
+
+                if (isFilter)
+                {
+                    LootFilterOpenState.MarkOpen(_entityIdThatOpenedIt);
+                    Debug.Log("[DMLootFilter] TELockServer: OPEN FILTER key=(" + key + ") openerEntityId=" + _entityIdThatOpenedIt + " ui='" + _customUi + "'");
+                }
+                else
+                {
+                    Debug.Log("[DMLootFilter] TELockServer: OPEN key=(" + key + ") openerEntityId=" + _entityIdThatOpenedIt + " ui='" + _customUi + "'");
+                }
             }
             catch (Exception ex)
             {
@@ -97,29 +127,33 @@ namespace DMLootFilter.Scripts
 
                 Debug.Log("[DMLootFilter] TEUnlockServer: CLOSE key=(" + key + ") allowDestroy=" + _allowContainerDestroy);
 
-                if (!_openerEntityByContainer.TryGetValue(key, out var openerEntityId) || openerEntityId <= 0)
+                if (!_openByContainer.TryGetValue(key, out var openInfo) || openInfo.openerEntityId <= 0)
                 {
                     Debug.Log("[DMLootFilter] TEUnlockServer: No opener tracked for key=(" + key + ") (skip snapshot).");
                     return;
                 }
 
-                _openerEntityByContainer.Remove(key);
+                _openByContainer.Remove(key);
 
-                var cInfo = ClientInfoUtil.TryGetClientInfoByEntityId(openerEntityId);
+                // If this was the FILTER box, re-enable filtering for this player now that UI is closed
+                if (openInfo.isFilterBox)
+                    LootFilterOpenState.MarkClosed(openInfo.openerEntityId);
+
+                var cInfo = ClientInfoUtil.TryGetClientInfoByEntityId(openInfo.openerEntityId);
                 if (cInfo == null)
                 {
-                    Debug.Log("[DMLootFilter] TEUnlockServer: No ClientInfo for openerEntityId=" + openerEntityId + " (skip).");
+                    Debug.Log("[DMLootFilter] TEUnlockServer: No ClientInfo for openerEntityId=" + openInfo.openerEntityId + " (skip).");
                     return;
                 }
 
                 string playerId = PlayerIdUtil.GetPersistentIdOrNull(cInfo);
                 if (string.IsNullOrWhiteSpace(playerId))
                 {
-                    Debug.Log("[DMLootFilter] TEUnlockServer: Could not resolve persistent id for openerEntityId=" + openerEntityId + " (skip).");
+                    Debug.Log("[DMLootFilter] TEUnlockServer: Could not resolve persistent id for openerEntityId=" + openInfo.openerEntityId + " (skip).");
                     return;
                 }
 
-                var world = GameManager.Instance != null ? GameManager.Instance.World : null;
+                var world = GameManager.Instance?.World;
                 if (world == null)
                 {
                     Debug.Log("[DMLootFilter] TEUnlockServer: World null (skip).");
@@ -145,11 +179,11 @@ namespace DMLootFilter.Scripts
                     return;
                 }
 
-                string name = LootFilterUtil.GetContainerCustomNameOrEmpty(te);
-                Debug.Log("[DMLootFilter] TEUnlockServer: containerName='" + name + "' playerId=" + playerId + " teType=" + te.GetType().Name + " lootableType=" + lootable.GetType().Name);
+                string name2 = LootFilterUtil.GetContainerCustomNameOrEmpty(te);
+                Debug.Log("[DMLootFilter] TEUnlockServer: containerName='" + name2 + "' playerId=" + playerId + " teType=" + te.GetType().Name + " lootableType=" + lootable.GetType().Name);
 
-                if (string.IsNullOrWhiteSpace(name) ||
-                    !name.Equals(LootFilterUtil.FilterBoxName, StringComparison.OrdinalIgnoreCase))
+                if (string.IsNullOrWhiteSpace(name2) ||
+                    !name2.Equals(LootFilterUtil.FilterBoxName, StringComparison.OrdinalIgnoreCase))
                 {
                     Debug.Log("[DMLootFilter] TEUnlockServer: Not filter chest (skip).");
                     return;
