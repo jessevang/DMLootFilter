@@ -1573,7 +1573,11 @@
         <property name="items_tags" value="bookAutoWeaponsDrumMag" />
       </action>
     </action_sequence>
-    <action_sequence name="remove_bookautoweaponsmachineguns">
+    <action_sequence name="remove_bookautoweapons
+                     
+
+
+guns">
       <action class="RemoveItems">
         <property name="items_location" value="Toolbelt,Backpack" />
         <property name="items_tags" value="bookAutoWeaponsMachineGuns" />

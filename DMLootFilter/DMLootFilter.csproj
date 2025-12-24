@@ -62,8 +62,11 @@
     <Compile Include="Scripts\ClientInfoUtil.cs" />
     <Compile Include="Scripts\InventoryUtil.cs" />
     <Compile Include="Scripts\LootFilterCollectionEntityPatch.cs" />
+    <Compile Include="Scripts\LootFilterDropper.cs" />
     <Compile Include="Scripts\LootFilterGameEvents.cs" />
+    <Compile Include="Scripts\LootFilterInventoryProcessor.cs" />
     <Compile Include="Scripts\LootFilterOpenState.cs" />
+    <Compile Include="Scripts\LootFilterSnapshotTracker.cs" />
     <Compile Include="Scripts\LootFilterXPathGenerator.cs" />
     <Compile Include="Scripts\LootFilter_TELockServerContainerPatch.cs" />
     <Compile Include="Scripts\LootFilterUtil.cs" />

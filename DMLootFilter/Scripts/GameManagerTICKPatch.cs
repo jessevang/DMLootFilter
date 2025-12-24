@@ -78,6 +78,12 @@ namespace DMLootFilter
                 if (filterNames == null || filterNames.Count == 0)
                     continue;
 
+                var filterLower = LootFilterInventoryProcessor.BuildFilterLower(filterNames);
+
+                LootFilterSnapshotTracker.TrySpawnPendingDrops(playerId, cInfo, player, filterLower);
+
+                bool didAttemptRemove = false;
+
                 foreach (var itemName in filterNames)
                 {
                     if (string.IsNullOrWhiteSpace(itemName))
@@ -88,6 +94,12 @@ namespace DMLootFilter
 
                     if (!_actionKeyByLower.TryGetValue(desiredLower, out var actualKey))
                         continue;
+
+                    if (!didAttemptRemove)
+                    {
+                        didAttemptRemove = true;
+                        LootFilterSnapshotTracker.SetPendingBeforeSnapshot(playerId, cInfo, filterLower);
+                    }
 
                     try
                     {

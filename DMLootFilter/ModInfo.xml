@@ -4,5 +4,5 @@
 	<DisplayName value="DM Loot Filter" />
 	<Description value="Server-side loot filter: snapshot a container named 'filter' and removes that item from inventory permanantly." />
 	<Author value="Darkmushu1" />
-	<Version value="1.0.0" />
+	<Version value="1.0.1" />
 </xml>
