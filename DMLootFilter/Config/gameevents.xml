@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<configs>
+  <append xpath="/gameevents">
+    <action_sequence name="remove_resourceWood">
+      <action class="RemoveItems">
+        <property name="items_location" value="Toolbelt,Backpack" />
+        <property name="items_tags" value="resourceWood" />
+      </action>
+    </action_sequence>
+  </append>
+</configs>

@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<xml>
+	<Name value="DMLootFilter" />
+	<DisplayName value="DM Loot Filter" />
+	<Description value="Server-side loot filter: snapshot a container named 'filter' and drop filtered items on the ground instead of into inventory." />
+	<Author value="Darkmushu1" />
+	<Version value="1.0.0" />
+</xml>

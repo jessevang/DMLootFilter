@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<configs>
+  <append xpath="/items/item[@name='resourceWood']">
+    <property name="Tags" value="resourceWood"/>
+  </append>
+</configs>
