@@ -9,11 +9,23 @@ namespace DMLootFilter
     {
         public const string FilterBoxName = "filter";
 
-        // Cache "how to get items" per lootable type (silent + fast)
         private static readonly Dictionary<Type, Func<object, ItemStack[]>> _itemsGetterByType =
             new Dictionary<Type, Func<object, ItemStack[]>>();
 
         private static readonly object _itemsGetterLock = new object();
+
+        private static float _lastCriticalLogTime = -9999f;
+        private const float CriticalLogThrottleSeconds = 30f;
+
+        private static void LogCriticalThrottled(string msg)
+        {
+            float now = Time.time;
+            if (now - _lastCriticalLogTime < CriticalLogThrottleSeconds)
+                return;
+
+            _lastCriticalLogTime = now;
+            Debug.LogError("[DMLootFilter] CRITICAL: " + msg);
+        }
 
         public static string GetContainerCustomNameOrEmpty(TileEntity te)
         {
@@ -60,10 +72,7 @@ namespace DMLootFilter
             {
                 var items = TryGetItemsArray(lootable);
                 if (items == null)
-                {
-                    Debug.LogWarning($"[DMLootFilter] SnapshotFilterFromLootable: Could not read items array from lootable type={lootable.GetType().FullName}");
                     return;
-                }
 
                 var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -91,12 +100,10 @@ namespace DMLootFilter
                 }
 
                 PlayerDataStore.PlayerStorage.SetLootFilterNames(playerId, set);
-
-                Debug.Log($"[DMLootFilter] Updated filter from lootable for {playerId}: {set.Count} item keys.");
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[DMLootFilter] SnapshotFilterFromLootable failed: {ex}");
+                LogCriticalThrottled("SnapshotFilterFromLootable failed ex=" + ex);
             }
         }
 
@@ -104,7 +111,6 @@ namespace DMLootFilter
         {
             if (lootable == null) return null;
 
-            // Fast path
             if (lootable is TileEntityLootContainer lc)
                 return lc.items;
 
@@ -116,7 +122,6 @@ namespace DMLootFilter
                 if (!_itemsGetterByType.TryGetValue(t, out getter))
                 {
                     getter = BuildItemsGetter(t);
-                    // cache even if null (so we don't re-probe every time)
                     _itemsGetterByType[t] = getter;
                 }
             }
@@ -136,33 +141,24 @@ namespace DMLootFilter
 
         private static Func<object, ItemStack[]> BuildItemsGetter(Type t)
         {
-            // NOTE: We intentionally do NOT use Harmony AccessTools here,
-            // because AccessTools logs warnings on misses.
             const BindingFlags BF = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-            // 1) Method: GetItems() : ItemStack[]
             try
             {
                 var mi = t.GetMethod("GetItems", BF, null, Type.EmptyTypes, null);
                 if (mi != null)
-                {
                     return (obj) => ConvertToItemStackArray(mi.Invoke(obj, null));
-                }
             }
             catch { }
 
-            // 2) Property: Items / items
             try
             {
                 var pi = t.GetProperty("Items", BF) ?? t.GetProperty("items", BF);
                 if (pi != null)
-                {
                     return (obj) => ConvertToItemStackArray(pi.GetValue(obj, null));
-                }
             }
             catch { }
 
-            // 3) Field: common names
             string[] fieldNames =
             {
                 "itemsArr",
@@ -181,14 +177,11 @@ namespace DMLootFilter
                 {
                     var fi = t.GetField(fn, BF);
                     if (fi != null)
-                    {
                         return (obj) => ConvertToItemStackArray(fi.GetValue(obj));
-                    }
                 }
                 catch { }
             }
 
-            // Nothing found for this type
             return null;
         }
 
@@ -199,7 +192,6 @@ namespace DMLootFilter
             if (val is ItemStack[] arr)
                 return arr;
 
-            // Some containers might store as List<ItemStack> or IList<ItemStack>
             if (val is IList<ItemStack> list)
             {
                 var a = new ItemStack[list.Count];

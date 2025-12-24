@@ -17,9 +17,16 @@ namespace DMLootFilter
         private static float _lastActionCacheTime = 0f;
         private static readonly float _actionCacheIntervalSeconds = 10f;
 
-        // lower(actionName) -> actual key as stored in GameEventSequences
         private static readonly Dictionary<string, string> _actionKeyByLower =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        private static bool _warnedEmptyGameEventSequences = false;
+
+        private static float _lastHandleActionErrorTime = -9999f;
+        private static readonly float _handleActionErrorThrottleSeconds = 30f;
+
+        private static float _lastRebuildErrorTime = -9999f;
+        private static readonly float _rebuildErrorThrottleSeconds = 30f;
 
         static void Postfix()
         {
@@ -39,8 +46,11 @@ namespace DMLootFilter
             if (now - _lastActionCacheTime >= _actionCacheIntervalSeconds)
             {
                 _lastActionCacheTime = now;
-                RebuildActionCache();
+                RebuildActionCache(now);
             }
+
+            if (_actionKeyByLower.Count == 0)
+                return;
 
             var clients = cm.Clients?.List;
             if (clients == null || clients.Count == 0)
@@ -57,8 +67,6 @@ namespace DMLootFilter
                 if (player == null || !player.IsSpawned() || player.IsDead())
                     continue;
 
-                // If player is currently editing the FILTER chest, pause filtering for them.
-                // (Prevents immediately deleting items they pull out of the filter box.)
                 if (DMLootFilter.Scripts.LootFilterOpenState.IsSuspended(cInfo.entityId))
                     continue;
 
@@ -75,32 +83,29 @@ namespace DMLootFilter
                     if (string.IsNullOrWhiteSpace(itemName))
                         continue;
 
-                    // Build action name from player-data item key
                     string sanitized = SanitizeForActionName(itemName);
-                    string desired = ActionPrefix + sanitized;             // e.g. remove_resourceWood
-                    string desiredLower = desired.ToLowerInvariant();      // e.g. remove_resourcewood
+                    string desiredLower = (ActionPrefix + sanitized).ToLowerInvariant();
 
                     if (!_actionKeyByLower.TryGetValue(desiredLower, out var actualKey))
-                    {
-                        // Uncomment if you want to see what's missing:
-                        // Debug.Log($"[DMLootFilter] Missing action in GameEventSequences: '{desired}' (lower='{desiredLower}')");
                         continue;
-                    }
 
                     try
                     {
-                        // IMPORTANT: use the actual dictionary key, not our constructed casing
                         GameEventManager.Current.HandleAction(actualKey, null, player, false, "");
                     }
                     catch (Exception ex)
                     {
-                        Debug.Log($"[DMLootFilter] HandleAction failed. action='{actualKey}' desired='{desired}' ex={ex}");
+                        if (now - _lastHandleActionErrorTime >= _handleActionErrorThrottleSeconds)
+                        {
+                            _lastHandleActionErrorTime = now;
+                            Debug.Log($"[DMLootFilter] HandleAction failed: {actualKey} ex={ex}");
+                        }
                     }
                 }
             }
         }
 
-        private static void RebuildActionCache()
+        private static void RebuildActionCache(float now)
         {
             _actionKeyByLower.Clear();
 
@@ -109,26 +114,33 @@ namespace DMLootFilter
                 var dict = GameEventManager.GameEventSequences;
                 if (dict == null || dict.Count == 0)
                 {
-                    Debug.Log("[DMLootFilter] GameEventSequences is empty. Your Config/gameevents.xml may not be loading.");
+                    if (!_warnedEmptyGameEventSequences)
+                    {
+                        _warnedEmptyGameEventSequences = true;
+                        Debug.Log("[DMLootFilter] GameEventSequences empty. gameevents.xml may not be loaded.");
+                    }
                     return;
                 }
 
                 foreach (var k in dict.Keys)
                 {
-                    if (string.IsNullOrWhiteSpace(k)) continue;
+                    if (string.IsNullOrWhiteSpace(k))
+                        continue;
+
                     var actual = k.Trim();
                     var lower = actual.ToLowerInvariant();
 
-                    // keep first seen
                     if (!_actionKeyByLower.ContainsKey(lower))
                         _actionKeyByLower[lower] = actual;
                 }
-
-                Debug.Log($"[DMLootFilter] Action cache refreshed. LoadedSequences={dict.Count} Cached={_actionKeyByLower.Count}");
             }
             catch (Exception ex)
             {
-                Debug.Log($"[DMLootFilter] RebuildActionCache failed. ex={ex}");
+                if (now - _lastRebuildErrorTime >= _rebuildErrorThrottleSeconds)
+                {
+                    _lastRebuildErrorTime = now;
+                    Debug.Log($"[DMLootFilter] RebuildActionCache failed ex={ex}");
+                }
             }
         }
 

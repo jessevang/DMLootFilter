@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using System;
 using UnityEngine;
 
 namespace DMLootFilter.Scripts
@@ -8,6 +9,19 @@ namespace DMLootFilter.Scripts
     {
         private static readonly AccessTools.FieldRef<GameManager, World> _world =
             AccessTools.FieldRefAccess<GameManager, World>("m_World");
+
+        private static float _lastCriticalLogTime = -9999f;
+        private const float CriticalLogThrottleSeconds = 30f;
+
+        private static void LogCriticalThrottled(string msg)
+        {
+            float now = Time.time;
+            if (now - _lastCriticalLogTime < CriticalLogThrottleSeconds)
+                return;
+
+            _lastCriticalLogTime = now;
+            Debug.LogError("[DMLootFilter] CRITICAL: " + msg);
+        }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(GameManager.CollectEntityServer))]
@@ -19,14 +33,14 @@ namespace DMLootFilter.Scripts
 
             World world;
             try { world = _world(__instance); }
-            catch { return true; }
+            catch (Exception ex) { LogCriticalThrottled("CollectEntityServer: world access failed ex=" + ex); return true; }
 
             if (world == null)
                 return true;
 
             Entity entity;
             try { entity = world.GetEntity(_entityId); }
-            catch { return true; }
+            catch (Exception ex) { LogCriticalThrottled("CollectEntityServer: GetEntity failed ex=" + ex); return true; }
 
             var entityItem = entity as EntityItem;
             if (entityItem == null)
@@ -41,16 +55,8 @@ namespace DMLootFilter.Scripts
                 return true;
 
             int type;
-            int count;
-            try
-            {
-                type = entityItem.itemStack.itemValue.type;
-                count = entityItem.itemStack.count;
-            }
-            catch
-            {
-                return true;
-            }
+            try { type = entityItem.itemStack.itemValue.type; }
+            catch { return true; }
 
             string itemKey = "";
             try
@@ -58,25 +64,21 @@ namespace DMLootFilter.Scripts
                 var ic = ItemClass.GetForId(type);
                 if (ic != null) itemKey = ic.Name ?? "";
             }
-            catch { }
-
-            if (string.IsNullOrWhiteSpace(itemKey))
-                return true;
-
-            bool filtered;
-            try
-            {
-                filtered = PlayerDataStore.PlayerStorage.HasFilterName(playerId, itemKey);
-            }
             catch
             {
                 return true;
             }
 
+            if (string.IsNullOrWhiteSpace(itemKey))
+                return true;
+
+            bool filtered;
+            try { filtered = PlayerDataStore.PlayerStorage.HasFilterName(playerId, itemKey); }
+            catch (Exception ex) { LogCriticalThrottled("CollectEntityServer: HasFilterName failed ex=" + ex); return true; }
+
             if (!filtered)
                 return true;
 
-            Debug.Log($"[DMLootFilter] Blocked pickup. playerId={playerId} entityId={_entityId} itemType={type} itemName='{itemKey}' count={count}");
             return false;
         }
     }
