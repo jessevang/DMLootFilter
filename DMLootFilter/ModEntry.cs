@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;           // Path
 using HarmonyLib;
 using UnityEngine;
 
@@ -10,21 +8,14 @@ namespace DMLootFilter
     {
         private const string HarmonyId = "DMLootFilter.Mod";
 
-        // Ensure we only generate once per server start
-        private static bool _generated = false;
-
         public void InitMod(Mod modInstance)
         {
             try
             {
-                // Register events first
                 ModEvents.PlayerSpawnedInWorld.RegisterHandler(OnPlayerSpawnedInWorld);
-  
 
-                // Load persisted player data
                 PlayerDataStore.PlayerStorage.Load();
 
-                // Apply Harmony patches
                 var harmony = new Harmony(HarmonyId);
                 harmony.PatchAll();
 
@@ -54,17 +45,17 @@ namespace DMLootFilter
 
                 var pd = PlayerDataStore.PlayerStorage.Get(playerId, saveIfNew: true);
 
-                if (pd.LootFilterItemNames == null)
-                    pd.LootFilterItemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                // Union count across all filter boxes
+                var union = PlayerDataStore.PlayerStorage.GetLootFilterNamesUnion(playerId);
 
-                Debug.Log("[DMLootFilter] Player spawned. id=" + playerId + " filterNames=" + pd.LootFilterItemNames.Count);
+                int unionCount = union?.Count ?? 0;
+
+                Debug.Log("[DMLootFilter] Player spawned. id=" + playerId + " filterUnionNames=" + unionCount);
             }
             catch (Exception ex)
             {
                 Debug.LogError("[DMLootFilter] PlayerSpawned handler error: " + ex);
             }
         }
-
-       
     }
 }

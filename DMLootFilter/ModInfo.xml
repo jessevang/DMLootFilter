@@ -2,7 +2,7 @@
 <xml>
 	<Name value="DMLootFilter" />
 	<DisplayName value="DM Loot Filter" />
-	<Description value="Server-side loot filter: snapshot a container named 'filter' and removes that item from inventory and places it on ground." />
+	<Description value="Server-side loot filter: snapshot list to filter from storatge container named filter to update your loot filter list." />
 	<Author value="Darkmushu1" />
-	<Version value="1.0.1" />
+	<Version value="1.0.2" />
 </xml>

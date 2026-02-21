@@ -74,17 +74,18 @@ namespace DMLootFilter
                 if (string.IsNullOrWhiteSpace(playerId))
                     continue;
 
-                var filterNames = PlayerDataStore.PlayerStorage.GetLootFilterNames(playerId);
-                if (filterNames == null || filterNames.Count == 0)
+                // NEW: union across all filter boxes ("filter", "filter1"...)
+                var filterNamesUnion = PlayerDataStore.PlayerStorage.GetLootFilterNamesUnion(playerId);
+                if (filterNamesUnion == null || filterNamesUnion.Count == 0)
                     continue;
 
-                var filterLower = LootFilterInventoryProcessor.BuildFilterLower(filterNames);
+                var filterLower = LootFilterInventoryProcessor.BuildFilterLower(filterNamesUnion);
 
                 LootFilterSnapshotTracker.TrySpawnPendingDrops(playerId, cInfo, player, filterLower);
 
                 bool didAttemptRemove = false;
 
-                foreach (var itemName in filterNames)
+                foreach (var itemName in filterNamesUnion)
                 {
                     if (string.IsNullOrWhiteSpace(itemName))
                         continue;

@@ -57,6 +57,7 @@ namespace DMLootFilter
         {
             Directory.CreateDirectory(ConfigDir);
 
+            // NEW: this now unions ALL boxes for ALL players
             HashSet<string> all = PlayerDataStore_PlayerStorageReflection.GetAllFilteredItemNames();
             if (all == null)
                 all = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

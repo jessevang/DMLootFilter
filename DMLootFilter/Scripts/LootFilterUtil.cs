@@ -7,7 +7,9 @@ namespace DMLootFilter
 {
     internal static class LootFilterUtil
     {
-        public const string FilterBoxName = "filter";
+        public const string FilterBoxName = "filter"; // base name
+
+        public const int MaxFilterBoxIndex = 10;      // supports filter1..filter10
 
         private static readonly Dictionary<Type, Func<object, ItemStack[]>> _itemsGetterByType =
             new Dictionary<Type, Func<object, ItemStack[]>>();
@@ -45,6 +47,41 @@ namespace DMLootFilter
             return "";
         }
 
+        public static bool TryParseFilterBoxKey(string containerName, out string filterKey)
+        {
+            filterKey = null;
+
+            if (string.IsNullOrWhiteSpace(containerName))
+                return false;
+
+            var s = containerName.Trim();
+
+            if (s.Equals(FilterBoxName, StringComparison.OrdinalIgnoreCase))
+            {
+                filterKey = FilterBoxName;
+                return true;
+            }
+
+            if (!s.StartsWith(FilterBoxName, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            var suffix = s.Substring(FilterBoxName.Length);
+            if (string.IsNullOrWhiteSpace(suffix))
+            {
+                filterKey = FilterBoxName;
+                return true;
+            }
+
+            if (!int.TryParse(suffix, out int n))
+                return false;
+
+            if (n < 1 || n > MaxFilterBoxIndex)
+                return false;
+
+            filterKey = FilterBoxName + n;
+            return true;
+        }
+
         public static ClientInfo TryGetClientInfoByEntityId(int entityId)
         {
             return ClientInfoUtil.TryGetClientInfoByEntityId(entityId);
@@ -63,10 +100,13 @@ namespace DMLootFilter
             return -1;
         }
 
-        public static void SnapshotFilterFromLootable(ITileEntityLootable lootable, string playerId, bool saveNow = true)
+        public static void SnapshotFilterFromLootable(ITileEntityLootable lootable, string playerId, string filterKey, bool saveNow = true)
         {
             if (lootable == null) return;
             if (string.IsNullOrWhiteSpace(playerId)) return;
+
+            if (string.IsNullOrWhiteSpace(filterKey))
+                filterKey = FilterBoxName;
 
             try
             {
@@ -99,7 +139,7 @@ namespace DMLootFilter
                     set.Add(key);
                 }
 
-                PlayerDataStore.PlayerStorage.SetLootFilterNames(playerId, set);
+                PlayerDataStore.PlayerStorage.SetLootFilterNames(playerId, filterKey, set, saveNow);
             }
             catch (Exception ex)
             {
@@ -211,7 +251,7 @@ namespace DMLootFilter
             string name = GetContainerCustomNameOrEmpty(lc);
             if (string.IsNullOrWhiteSpace(name)) return false;
 
-            return name.Equals(FilterBoxName, StringComparison.OrdinalIgnoreCase);
+            return TryParseFilterBoxKey(name, out _);
         }
     }
 }

@@ -81,5 +81,7 @@ namespace DMLootFilter.Scripts
 
             return false;
         }
+
+
     }
 }

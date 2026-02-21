@@ -60,6 +60,7 @@ namespace DMLootFilter.Scripts
         {
             public int openerEntityId;
             public bool isFilterBox;
+            public string filterKey; // "filter", "filter1"... "filter10"
         }
 
         private static readonly Dictionary<ContainerKey, OpenInfo> _openByContainer =
@@ -91,6 +92,7 @@ namespace DMLootFilter.Scripts
                 var key = ContainerKey.From(_clrIdx, _blockPos, _lootEntityId);
 
                 bool isFilter = false;
+                string filterKey = null;
 
                 var world = GameManager.Instance?.World;
                 if (world != null)
@@ -99,15 +101,20 @@ namespace DMLootFilter.Scripts
                     if (te != null)
                     {
                         string name = LootFilterUtil.GetContainerCustomNameOrEmpty(te);
-                        if (!string.IsNullOrWhiteSpace(name) &&
-                            name.Equals(LootFilterUtil.FilterBoxName, StringComparison.OrdinalIgnoreCase))
+                        if (LootFilterUtil.TryParseFilterBoxKey(name, out var fk))
                         {
                             isFilter = true;
+                            filterKey = fk;
                         }
                     }
                 }
 
-                _openByContainer[key] = new OpenInfo { openerEntityId = _entityIdThatOpenedIt, isFilterBox = isFilter };
+                _openByContainer[key] = new OpenInfo
+                {
+                    openerEntityId = _entityIdThatOpenedIt,
+                    isFilterBox = isFilter,
+                    filterKey = filterKey
+                };
 
                 if (isFilter)
                     LootFilterOpenState.MarkOpen(_entityIdThatOpenedIt);
@@ -160,14 +167,15 @@ namespace DMLootFilter.Scripts
                 if (!lootable.bPlayerStorage)
                     return;
 
-                string name2 = LootFilterUtil.GetContainerCustomNameOrEmpty(te);
-                if (string.IsNullOrWhiteSpace(name2) ||
-                    !name2.Equals(LootFilterUtil.FilterBoxName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return;
-                }
+                // Re-parse on close (safer), fallback to stored key
+                string name = LootFilterUtil.GetContainerCustomNameOrEmpty(te);
+                if (!LootFilterUtil.TryParseFilterBoxKey(name, out var filterKey))
+                    filterKey = openInfo.filterKey;
 
-                LootFilterUtil.SnapshotFilterFromLootable(lootable, playerId, saveNow: true);
+                if (string.IsNullOrWhiteSpace(filterKey))
+                    return;
+
+                LootFilterUtil.SnapshotFilterFromLootable(lootable, playerId, filterKey, saveNow: true);
             }
             catch (Exception ex)
             {
